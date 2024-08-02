@@ -9,3 +9,4 @@
 Module.symvers
 modules.order
 rust-project.json
+/references/*
