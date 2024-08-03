@@ -9,6 +9,7 @@ use kernel::{
     device,
     io_mem,
     serial::uart_port,
+    error::code::*, // dev_info! 和 dbg!
 };
 
 const UART_SIZE: usize = 0x200;
@@ -54,8 +55,8 @@ impl amba::Driver for Pl011Driver {
 
     kernel::driver_amba_id_table!(MY_AMDA_ID_TABLE);
     fn probe(adev: &mut amba::Device, _data: Option<&Self::IdInfo>) -> Result {
-        // dev_info!(adev,"{} PL061 GPIO chip (probe)\n",adev.name());
-        // dbg!("********** PL061 GPIO chip (probe) *********\n");
+        dev_info!(adev,"{} PL061 GPIO chip (probe)\n",adev.name());
+        dbg!("********** PL061 GPIO chip (probe) *********\n");
 
         let dev = device::Device::from_dev(adev);
 
@@ -70,10 +71,10 @@ impl amba::Driver for Pl011Driver {
         let membase = reg_mem.get();
         let irq = adev.irq(0).ok_or(ENXIO)?;
 
-        // dev_info!(adev,"fifosize is {}\n",fifosize);
-        // dev_info!(adev,"mapbase is 0x{:x}\n", mapbase);
-        // dev_info!(adev,"membase is 0x{:p}\n",membase);
-        // dev_info!(adev,"irq is {}\n",irq);
+        dev_info!(adev,"fifosize is {}\n",fifosize);
+        dev_info!(adev,"mapbase is 0x{:x}\n", mapbase);
+        dev_info!(adev,"membase is 0x{:p}\n",membase);
+        dev_info!(adev,"irq is {}\n",irq);
         let has_sysrq = 1;
         let flags = UPF_BOOT_AUTOCONF;
         let port =  uart_port::UartPort::new().setup(
@@ -87,7 +88,7 @@ impl amba::Driver for Pl011Driver {
              portnr as _,
             );     
 
-        // dbg!("********* PL061 GPIO chip registered *********\n");
+        dbg!("********* PL061 GPIO chip registered *********\n");
         Ok(())
     }
 }
