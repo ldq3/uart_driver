@@ -4,6 +4,7 @@
 
 use kernel::{
     prelude::*,
+    bindings,
     amba,
     module_amba_driver,
     device,
@@ -12,9 +13,10 @@ use kernel::{
     error::code::*, // dev_info! 和 dbg!
 };
 
+pub(crate) const UART_NR: usize = 14;
+
 const UART_SIZE: usize = 0x200;
 const UPIO_MEM: u32 = 2;
-pub(crate) const UART_NR: usize = 14;
 
 pub const UPF_BOOT_AUTOCONF: u64 = 1_u64 << 28;
 
@@ -50,6 +52,22 @@ fn pl011_find_free_port() -> Result<usize>{
     return Err(EBUSY);
 }
 
+
+// TODO: ops
+// impl uart_port::UartPortOps for uart_port::UartPort {
+//     fn tx_empty(_port: &uart_port::UartPort) -> u32 {
+        
+//     }
+
+//     fn set_mctrl(_port: &uart_port::UartPort,mctrl:u32) {
+        
+//     }
+    
+//     fn get_mctrl(_port: &uart_port::UartPort) -> u32 {
+//         0
+//     }
+// }
+
 impl amba::Driver for Pl011Driver {
     // type Data = Arc<DeviceData>;
 
@@ -72,7 +90,6 @@ impl amba::Driver for Pl011Driver {
         let fifosize = if adev.revision_get().unwrap() < 3 {16} else {32};
         let iotype = UPIO_MEM as u8;
         let irq = adev.irq(0).ok_or(ENXIO)?;
-        // TODO: ops
 
         let has_sysrq = 1;
         let flags = UPF_BOOT_AUTOCONF;
@@ -88,6 +105,12 @@ impl amba::Driver for Pl011Driver {
             );
 
         dbg!("********* PL011 GPIO chip registered *********\n");
+        Ok(())
+    }
+
+    // TODO
+    fn remove(adev: &mut amba::Device) -> Result {
+        dev_info!(adev, "{} PL011 GPIO chip (remove)\n", adev.name());
         Ok(())
     }
 }
